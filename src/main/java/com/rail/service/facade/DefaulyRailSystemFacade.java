@@ -47,7 +47,7 @@ public class DefaulyRailSystemFacade implements RailSystemFacade{
 
 	private void validateInput(RouteRequest routeRequest) {
 		String source = routeRequest.getSource().trim();
-		String destination = routeRequest.getSource().trim();
+		String destination = routeRequest.getDestination().trim();
 		if(StringUtils.isBlank(source) || StringUtils.isBlank(destination)) {
 			 throw new IllegalArgumentException("Either source or destination is Blank");
 		}
