@@ -21,7 +21,7 @@ import lombok.Setter;
  */
 @Primary
 @Component("defaulyRailSystemFacade")
-public class DefaulyRailSystemFacade implements RailSystemFacade{
+public class DefaultRailSystemFacade implements RailSystemFacade{
 	
 	@Autowired
 	@Setter

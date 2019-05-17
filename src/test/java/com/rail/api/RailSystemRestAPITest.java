@@ -4,8 +4,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +15,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.rail.common.CommonTestUtils;
 import com.rail.entity.RouteRequest;
 import com.rail.entity.RouteResponse;
 import com.rail.facade.RailSystemFacade;
@@ -55,7 +54,7 @@ public class RailSystemRestAPITest {
 	
 	@Test
 	public void test_FindRoute_Success() {
-		RouteResponse routeResponse = buildSuccessRouteResponse();
+		RouteResponse routeResponse = CommonTestUtils.buildSuccessRouteResponse();
 		when(mockRailSystemFacade.findRoute(any(RouteRequest.class))).thenReturn(routeResponse);
 		
 		RouteRequest routeRequest = new RouteRequest();
@@ -93,11 +92,5 @@ public class RailSystemRestAPITest {
 		}catch(Exception e) {
 			Assert.fail("Expecting IllegalArgumentException exception");
 		}
-	}
-	private RouteResponse buildSuccessRouteResponse() {
-		RouteResponse response = new RouteResponse();
-		response.setDistance(10);
-		response.setRouteStations(new ArrayList<String>());
-		return response;
 	}
 }
