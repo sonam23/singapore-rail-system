@@ -43,7 +43,7 @@ public class DefaultGraphServiceTest {
 	public void test_findRoute_Success() {
 		RouteRequest routeRequest = CommonTestUtils.buildRouteRequest("A", "B");
 		RouteResponse expectedResponse = CommonTestUtils.buildSuccessRouteResponse();
-		ArrayList<String> str = new ArrayList<String>(); str.add("A"); str.add("Bs");
+		ArrayList<String> str = new ArrayList<String>(); str.add("A"); str.add("B");
 		HashMap<String, Station>  list = CommonTestUtils.buildHashMap(str);
 		when(stationGraph.findShortestPath(any(RouteRequest.class))).thenReturn(expectedResponse);
 		when(stationGraph.getStationHashMap()).thenReturn(list);

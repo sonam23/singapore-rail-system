@@ -21,10 +21,10 @@ import lombok.Setter;
 public class DefaultGraphService implements GraphService{
 	
 	@Autowired @Setter
-	GraphUtil graphUtil;
+	protected GraphUtil graphUtil;
 	
 	@Autowired @Setter
-	StationGraph stationGraph;
+	protected StationGraph stationGraph;
 
 	@Override
 	public boolean initializeNetwork(ArrayList<String[]> stationList) {
