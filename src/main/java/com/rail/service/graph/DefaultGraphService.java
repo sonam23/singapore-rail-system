@@ -41,10 +41,18 @@ public class DefaultGraphService implements GraphService{
 		return response;
 	}
 
+	/**
+	 * Validates that the graph is already initialized when the call is made
+	 * Validates that the station names provided are corrct and exists in the network.
+	 * @param routeRequest
+	 */
 	private void validateInputStation(RouteRequest routeRequest) {
 		String source = routeRequest.getSource();
 		String destination = routeRequest.getDestination();
 		HashMap<String, Station> stationHashMap = stationGraph.getStationHashMap();
+		if(stationHashMap == null || stationHashMap.size() == 0) {
+			throw new InternalError("Please initialize the network first!");
+		}
 		Station startVertex = stationHashMap.get(source);
 		Station endVertex = stationHashMap.get(destination);		
 		if(startVertex == null) {

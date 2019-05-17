@@ -1,4 +1,4 @@
-package com.rail.service.facade;
+package com.rail.facade;
 
 import java.util.ArrayList;
 
@@ -13,6 +13,12 @@ import com.rail.service.graph.GraphService;
 
 import lombok.Setter;
 
+/**
+ * Facade implementation to setup the rail network and find route between stations
+ * Currently it uses graph library JGRAPHT, we can always create our own custom implementation of GraphService 
+ * Or use any other graph library such as Google Guava, Jung etc
+ * @author sagarwal
+ */
 @Primary
 @Component("defaulyRailSystemFacade")
 public class DefaulyRailSystemFacade implements RailSystemFacade{
@@ -25,7 +31,11 @@ public class DefaulyRailSystemFacade implements RailSystemFacade{
 	@Setter
 	GraphService graphService;
 
-	@Override
+	/**
+	 * Intialize and setup the network of stations
+	 * @param filePath
+	 * @return boolean - based on success or failure to initialize the network
+	 */
 	public boolean setup(String filePath) {
 		try {
 			ArrayList<String[]> stationList = facadeUtil.readFile(filePath);
@@ -39,12 +49,22 @@ public class DefaulyRailSystemFacade implements RailSystemFacade{
 		}
 	}
 
-	@Override
+	/**
+	 * Validate the input for mandatory fields and finds the shortest path via graph service 
+	 * @param routeRequest
+	 * @return routeResponse
+	 */
 	public RouteResponse findRoute(RouteRequest routeRequest) {
+		
 		validateInput(routeRequest);
 		return graphService.findRoute(routeRequest);
 	}
 
+	/**
+	 * Validates that the network is initialized
+	 * Validates that the source and destination is provided in the request
+	 * @param routeRequest
+	 */
 	private void validateInput(RouteRequest routeRequest) {
 		String source = routeRequest.getSource().trim();
 		String destination = routeRequest.getDestination().trim();
@@ -54,6 +74,14 @@ public class DefaulyRailSystemFacade implements RailSystemFacade{
 		if(StringUtils.equals(source, destination)) {
 			throw new IllegalArgumentException("Source and destination cannot be same");
 		}
+	}
+
+	/**
+	 * Work in progress - for future time based search
+	 */
+	@Override
+	public RouteResponse findRouteTime(RouteRequest routeRequest) {
+		throw new InternalError("Work under progress");
 	}
 
 }

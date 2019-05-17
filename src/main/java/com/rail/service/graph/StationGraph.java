@@ -105,6 +105,10 @@ public class StationGraph {
 		Station startVertex = stationHashMap.get(routeRequest.getSource());
 		Station endVertex = stationHashMap.get(routeRequest.getDestination());
 		GraphPath<Station, StationEdge> path = DijkstraShortestPath.findPathBetween(graph, startVertex, endVertex);
+		if(path.getLength() == 0) {
+			//This would imply that no route has been found
+			return null;
+		}
 		RouteResponse response = graphUtil.constructResponse(path);
 		return response;
 	}

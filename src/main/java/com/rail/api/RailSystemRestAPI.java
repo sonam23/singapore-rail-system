@@ -1,7 +1,5 @@
 package com.rail.api;
 
-import java.util.ArrayList;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,27 +11,51 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.rail.entity.RouteRequest;
 import com.rail.entity.RouteResponse;
-import com.rail.service.facade.RailSystemFacade;
+import com.rail.facade.RailSystemFacade;
 
 import lombok.Setter;
 
+/**
+ * This is the Main API class which has all the end points exposed as service
+ * @author sagarwal
+ */
 @RestController
 public class RailSystemRestAPI {
 	
 	@Setter @Autowired
 	private RailSystemFacade railSystemFacade;
+	
+	@Setter @Autowired
+	private RailSystemRestUtil railSystemRestUtil;
 
+	/**
+	 * Rest API for initialization of the Railway System
+	 * @return
+	 */
 	@RequestMapping("/setup")
-	public String setup() {
+	public ResponseEntity<String> setup() {
 		boolean result = railSystemFacade.setup("bin/StationMap.csv");
-		if(result)
-			return "Successfully Setup Network";
-		else
-			return "Rail Network Setup Failed";
+		return railSystemRestUtil.constructResponse(result);
 	}
 
+	/**
+	 * Rest API for finding the shortest path between the two given stations
+	 * @param routeRequest
+	 * @return
+	 */
 	@RequestMapping(value = "/find-route", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<RouteResponse> findRoute(@RequestBody RouteRequest routeRequest) {
+		RouteResponse response = railSystemFacade.findRoute(routeRequest);
+		return railSystemRestUtil.constructResponse(response);
+	}
+	
+	/**
+	 * Rest API for finding the shortest path between the two given stations at the given time.
+	 * @param routeRequest
+	 * @return
+	 */
+	@RequestMapping(value = "/find-route-time", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<RouteResponse> findRouteWithTime(@RequestBody RouteRequest routeRequest) {
 		RouteResponse response = railSystemFacade.findRoute(routeRequest);
 		return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
 	}

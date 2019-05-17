@@ -1,5 +1,9 @@
 package com.rail.entity.graph;
 
+/**
+ * Entity class which represents a simple or a junction station(having more than one code)
+ * @author sagarwal
+ */
 import java.util.ArrayList;
 import java.util.Objects;
 

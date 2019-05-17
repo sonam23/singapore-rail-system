@@ -19,7 +19,7 @@ public class GraphUtil {
 	 * This will create a unique set of Stations after reading the file.
 	 * The junction stations will have more than one station codes associated with it.				
 	 * @param stationList
-	 * @return
+	 * @return HashMap<String, Station>
 	 */
 	public HashMap<String, Station> contstructStationHashMap(ArrayList<String[]> stationList) {
 		HashMap<String, Station> stationHashMap = new HashMap<String,Station>();
@@ -39,12 +39,26 @@ public class GraphUtil {
 		return stationHashMap;
 	}
 	
+	/**
+	 * Constructs a new station
+	 * @param code
+	 * @param name
+	 * @param date
+	 * @return Station
+	 */
 	private Station constructStation(String code, String name, String date) {
 		ArrayList<String> codes = new ArrayList<>();
 		codes.add(code);
 		return new Station(codes, name, date);
 	}
 	
+	/**
+	 * Updates the station code, if station is already present in the hashmap
+	 * @param code
+	 * @param name
+	 * @param stationHashMap
+	 * @return Station
+	 */
 	private Station constructStation(String code, String name, HashMap<String, Station> stationHashMap) {
 		Station station = stationHashMap.get(name);
 		ArrayList<String> codeExisting = station.getCode();
@@ -53,6 +67,14 @@ public class GraphUtil {
 		return station;
 	}
 	
+	/**
+	 * This is the main method, which constructs the response given the result of the shortest path stations. It returns
+	 *   1. Unique station codes in the route
+	 *   2. List of the stations
+	 *   3. Description of the routes, which also provides changing line details
+	 * @param path
+	 * @return RouteResponse
+	 */
 	public RouteResponse constructResponse(GraphPath<Station, StationEdge> path) {
 		RouteResponse response = new RouteResponse();
 		
@@ -68,7 +90,7 @@ public class GraphUtil {
 			currentStationCode = getCurrentStatusCode(currentStation, currentStationLine);
 			//This can happen if the previous station we needed to change the line, find out the common line between the previous and new station
 			if(StringUtils.isBlank(currentStationCode)) {
-				ArrayList<String> stationListForJunction = getStationListForJunction(currentStation, prevStation);
+				ArrayList<String> stationListForJunction = getStationCodeListForJunction(currentStation, prevStation);
 				stationListForJunction.forEach(station -> {
 					routeStations.add(station);
 				});
@@ -91,8 +113,17 @@ public class GraphUtil {
 		
 	}
 
+	/**
+	 * Given the station, it gets the station code on the line.
+	 * This is particularly useful when the station is a junction and has more that one station codes.
+	 * Case: that the station does not have any code in the line, it returns empty string then.
+	 * @param currentStation
+	 * @param currentStationLine
+	 * @return
+	 */
 	private String getCurrentStatusCode(Station currentStation, String currentStationLine) {
 		//If currentStationLine is empty, this is the first station. It can also happen that the first station itself is a junction. For simplicity we are picking up the first statuoon
+		//Scope for improvement
 		if(StringUtils.isEmpty(currentStationLine)) {
 			return currentStation.getCode().get(0);
 		}
@@ -105,7 +136,15 @@ public class GraphUtil {
 		return "";
 	}
 	
-	private ArrayList<String> getStationListForJunction(Station currentStation, Station prevStation) {
+	/**
+	 * Given two stations, it returns the station code list for the junction. For example
+	 * Station-Botanic Gardens(CC19,DT9), Station-Stevens(DT10, TE11)
+	 * Response - (DT9, DT10)
+	 * @param currentStation
+	 * @param prevStation
+	 * @return
+	 */
+	private ArrayList<String> getStationCodeListForJunction(Station currentStation, Station prevStation) {
 		ArrayList<String> junctionStationList = new ArrayList<String>();
 		for(String code: currentStation.getCode()) {
 			String codeLine = getCurrentLineFromCode(code);

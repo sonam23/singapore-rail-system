@@ -1,4 +1,4 @@
-package com.rail.service.facade;
+package com.rail.facade;
 
 import java.io.IOException;
 import java.nio.file.Files;
