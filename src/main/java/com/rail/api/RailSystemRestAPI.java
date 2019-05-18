@@ -46,9 +46,10 @@ public class RailSystemRestAPI {
 	@RequestMapping(value = "/find-route", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<RouteResponse> findRoute(@RequestBody RouteRequest routeRequest) {
 		RouteResponse response = railSystemFacade.findRoute(routeRequest);
+		printResponse(response);
 		return railSystemRestUtil.constructResponse(response);
 	}
-	
+
 	/**
 	 * Rest API for finding the shortest path between the two given stations at the given time.
 	 * @param routeRequest
@@ -56,7 +57,22 @@ public class RailSystemRestAPI {
 	 */
 	@RequestMapping(value = "/find-route-time", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<RouteResponse> findRouteWithTime(@RequestBody RouteRequest routeRequest) {
-		RouteResponse response = railSystemFacade.findRoute(routeRequest);
+		RouteResponse response = railSystemFacade.findRouteTime(routeRequest);
+		printResponse(response);
 		return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
+	}
+	
+	private void printResponse(RouteResponse response) {
+		System.out.println("___________________________________________________________________________");
+		System.out.println("Stations travelled: "+response.getDistance());
+		System.out.println("Number of times lines were changed: "+response.getNumberOfStationChanged());
+		System.out.println("Route: "+response.getRouteStations());
+		System.out.println(response.getTime()!=null?"TimeTaken: "+response.getTime():"");
+		response.getRouteDescription().forEach(System.out::println);
+		System.out.println("___________________________________________________________________________");
+		response.getStationList().forEach(station -> {
+			System.out.println(station.getName()+ " -> "+station.getCode());
+		});
+		
 	}
 }

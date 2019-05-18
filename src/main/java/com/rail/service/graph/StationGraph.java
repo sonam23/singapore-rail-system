@@ -2,6 +2,7 @@ package com.rail.service.graph;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import java.util.Map;
 
 import org.jgrapht.Graph;
@@ -20,6 +21,7 @@ import com.rail.service.graph.util.DateTimeUtil;
 import com.rail.service.graph.util.GraphUtil;
 import com.rail.service.graph.util.TimeCategory;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -40,13 +42,19 @@ public class StationGraph {
 		private static final StationGraph INSTANCE = new StationGraph();
 	}
 	
+	@AllArgsConstructor
+	public class LineToStationEdge{
+		@Getter @Setter String line;
+		@Getter @Setter StationEdge edge;
+	}
+	
 	@Getter private HashMap<String, Station> stationHashMap;
 	
 	private ArrayList<String[]> stationList;
 	
 	@Getter private Graph<Station, StationEdge> graph;
 	
-	private HashMap<String, StationEdge> stationEdgeHashMap;
+	private ArrayList<LineToStationEdge> lineToStationEdgeList;
 
 	public void init(HashMap<String, Station> stationHashMap, ArrayList<String[]> stationList) {
 		this.stationHashMap = stationHashMap;
@@ -65,7 +73,7 @@ public class StationGraph {
 		String prevLine = "";
 		
 		//This is used for graph construction
-		stationEdgeHashMap = new HashMap<String, StationEdge>();
+		lineToStationEdgeList = new ArrayList<StationGraph.LineToStationEdge>();
 		for(int i =0; i< stationList.size(); i++) {
 			String[] stationArr = stationList.get(i);
 			String code = stationArr[0];
@@ -97,7 +105,7 @@ public class StationGraph {
 		}
 		if(prevStation != null) {
 			StationEdge edge = graph.addEdge(prevStation, station);
-			stationEdgeHashMap.put(currentLine, edge);
+			lineToStationEdgeList.add(new LineToStationEdge(currentLine, edge));
 		}
 	}
 
@@ -130,18 +138,18 @@ public class StationGraph {
 		TimeCategory timeCategory = DateTimeUtil.getTimeCategoryForTravel(routeRequest.getTime());
 		switch(timeCategory) {
 			case PEAK_HOURS:
-				hashMapWeights = graphUtil.getPeakHourTravelMap(stationEdgeHashMap);
+				hashMapWeights = graphUtil.getPeakHourTravelMap(lineToStationEdgeList);
 				break;
 			case NON_PEAK_HOURS:
-				hashMapWeights = graphUtil.getNonPeakHourTravelMap(stationEdgeHashMap);
+				hashMapWeights = graphUtil.getNonPeakHourTravelMap(lineToStationEdgeList);
 				break;
 			case NIGHT_HOURS:
-				hashMapWeights = graphUtil.getNightHourTravelMap(stationEdgeHashMap);
+				hashMapWeights = graphUtil.getNightHourTravelMap(lineToStationEdgeList);
 		}
 		
 		Graph<Station, StationEdge> weightedGraph = new AsWeightedGraph<Station, StationEdge>(graph, hashMapWeights);	
 		if(timeCategory.equals(TimeCategory.NIGHT_HOURS)) {
-			weightedGraph = graphUtil.removeEdgesNotOperational(weightedGraph,stationEdgeHashMap);
+			weightedGraph = graphUtil.removeEdgesNotOperational(weightedGraph,lineToStationEdgeList);
 		}
 		
 		GraphPath<Station, StationEdge> path = DijkstraShortestPath.findPathBetween(weightedGraph, startVertex, endVertex);

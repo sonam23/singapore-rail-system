@@ -37,7 +37,7 @@ public class DefaultGraphService implements GraphService{
 	@Override
 	public RouteResponse findRoute(RouteRequest routeRequest) {
 		validateInputStation(routeRequest);
-		RouteResponse response = stationGraph.findShortestPathTime(routeRequest);
+		RouteResponse response = stationGraph.findShortestPath(routeRequest);
 		return response;
 	}
 

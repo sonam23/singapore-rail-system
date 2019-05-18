@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import com.rail.entity.RouteResponse;
 import com.rail.entity.graph.Station;
 import com.rail.entity.graph.StationEdge;
+import com.rail.service.graph.StationGraph.LineToStationEdge;
 
 @Component
 public class GraphUtil {
@@ -186,13 +187,13 @@ public class GraphUtil {
 	 * @param stationEdgeHashMap
 	 * @return
 	 */
-	public  Map<StationEdge, Double> getPeakHourTravelMap(HashMap<String, StationEdge> stationEdgeHashMap) {
+	public  Map<StationEdge, Double> getPeakHourTravelMap(ArrayList<LineToStationEdge> lineToStationEdgeList) {
 		Map<StationEdge, Double> hashMap = new HashMap<StationEdge, Double>();
-		stationEdgeHashMap.forEach((line, edge) ->{
-			if(line.equals("NS") || line.equals("NS")) {
-				hashMap.put(edge, (double) 12);
+		lineToStationEdgeList.forEach(lineEdge ->{
+			if(lineEdge.getLine().equals("NS") || lineEdge.getLine().equals("NS")) {
+				hashMap.put(lineEdge.getEdge(), 12.0);
 			}else {
-				hashMap.put(edge, (double) 10);
+				hashMap.put(lineEdge.getEdge(), 10.0);
 			}
 		});
 		return hashMap;
@@ -206,13 +207,13 @@ public class GraphUtil {
 	 * @param stationEdgeHashMap
 	 * @return
 	 */
-	public  Map<StationEdge, Double> getNonPeakHourTravelMap(HashMap<String, StationEdge> stationEdgeHashMap) {
+	public  Map<StationEdge, Double> getNonPeakHourTravelMap(ArrayList<LineToStationEdge> lineToStationEdgeList) {
 		Map<StationEdge, Double> hashMap = new HashMap<StationEdge, Double>();
-		stationEdgeHashMap.forEach((line, edge) ->{
-			if(line.equals("DT") || line.equals("TE")) {
-				hashMap.put(edge, (double) 8);
+		lineToStationEdgeList.forEach(lineEdge ->{
+			if(lineEdge.getLine().equals("DT") || lineEdge.getLine().equals("TE")) {
+				hashMap.put(lineEdge.getEdge(), 8.0);
 			}else {
-				hashMap.put(edge, (double) 10);
+				hashMap.put(lineEdge.getEdge(), 10.0);
 			}
 		});
 		return hashMap;
@@ -227,14 +228,14 @@ public class GraphUtil {
 	 * @param stationEdgeHashMap
 	 * @return
 	 */
-	public  Map<StationEdge, Double> getNightHourTravelMap(HashMap<String, StationEdge> stationEdgeHashMap) {
+	public  Map<StationEdge, Double> getNightHourTravelMap(ArrayList<LineToStationEdge> lineToStationEdgeList) {
 		Map<StationEdge, Double> hashMap = new HashMap<StationEdge, Double>();
-		stationEdgeHashMap.forEach((line, edge) ->{
+		lineToStationEdgeList.forEach(lineEdge ->{
 			//The lines DT, CG and CE  are removed directly from graph
-			if(line.equals("TE")){
-				hashMap.put(edge, (double) 8);
+			if(lineEdge.getLine().equals("TE")){
+				hashMap.put(lineEdge.getEdge(), 8.0);
 			}else {
-				hashMap.put(edge, (double) 10);
+				hashMap.put(lineEdge.getEdge(), 10.0);
 			}
 		});
 		return hashMap;
@@ -258,10 +259,10 @@ public class GraphUtil {
 		return response;
 	}
 
-	public Graph<Station, StationEdge> removeEdgesNotOperational(Graph<Station, StationEdge> weightedGraph, HashMap<String, StationEdge> stationEdgeHashMap) {
-		stationEdgeHashMap.forEach((line, edge) ->{
-			if(line.equals("DT") || line.equals("CG") || line.equals("CE")) {
-				weightedGraph.removeEdge(edge);
+	public Graph<Station, StationEdge> removeEdgesNotOperational(Graph<Station, StationEdge> weightedGraph, ArrayList<LineToStationEdge> lineToStationEdgeList) {
+		lineToStationEdgeList.forEach(lineEdge ->{
+			if(lineEdge.getLine().equals("DT") || lineEdge.getLine().equals("CG") || lineEdge.getLine().equals("CE")) {
+				weightedGraph.removeEdge(lineEdge.getEdge());
 			}
 		});
 		return null;

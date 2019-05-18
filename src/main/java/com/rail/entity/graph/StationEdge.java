@@ -14,6 +14,6 @@ public class StationEdge extends DefaultWeightedEdge{
     public String toString(){
     	Station source = (Station) getSource();
     	Station destination = (Station) getTarget();
-        return "(" + destination.getCode() + " : " + source.getCode() + ")";
+        return "(" + destination.getCode() + " : " + source.getCode() + ") : Weight"+getWeight();
     }
 }
