@@ -19,11 +19,13 @@ public class RouteResponse {
 	@Getter private ArrayList<String> routeDescription;
 	@Getter @Setter private List<Station> stationList;
 	private ArrayList<EdgeStationLinks> stationsLinks;
-	@Getter @Setter private String time;
+	@Getter @Setter private Double time;
+	@Getter @Setter private int numberOfStationChanged;
 	
 	public RouteResponse(){
 		routeDescription = new ArrayList<String>();
 		stationsLinks = new ArrayList<RouteResponse.EdgeStationLinks>();
+		numberOfStationChanged = 0;
 	}
 	
 	/**

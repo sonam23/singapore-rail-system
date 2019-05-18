@@ -37,7 +37,7 @@ public class DefaultGraphService implements GraphService{
 	@Override
 	public RouteResponse findRoute(RouteRequest routeRequest) {
 		validateInputStation(routeRequest);
-		RouteResponse response = stationGraph.findShortestPath(routeRequest);
+		RouteResponse response = stationGraph.findShortestPathTime(routeRequest);
 		return response;
 	}
 
@@ -61,6 +61,13 @@ public class DefaultGraphService implements GraphService{
 		if(endVertex == null) {
 			throw new IllegalArgumentException("No such station = "+destination);
 		}
+	}
+
+	@Override
+	public RouteResponse findRouteTime(RouteRequest routeRequest) {
+		validateInputStation(routeRequest);
+		RouteResponse response = stationGraph.findShortestPathTime(routeRequest);
+		return response;
 	}
 
 }

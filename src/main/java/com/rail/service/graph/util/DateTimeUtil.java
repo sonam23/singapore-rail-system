@@ -25,7 +25,7 @@ public class DateTimeUtil {
 	static ArrayList<DayOfWeek> PEAK_TIME_DAYS; 
 	
 	//Night hours (10pm-6am on Mon-Sun)
-	static int[] NIGHT_TIME_HOURS = {22, 23, 00, 1, 2, 3, 4, 5, 6};
+	static ArrayList<TimeInterval> NIGHT_TIME_HOUR;
 	
 	static {
 		PEAK_TIME_HOURS = new ArrayList<TimeInterval>();
@@ -36,6 +36,11 @@ public class DateTimeUtil {
 		PEAK_TIME_DAYS = new ArrayList<DayOfWeek>();
 		PEAK_TIME_DAYS.add(DayOfWeek.MONDAY);PEAK_TIME_DAYS.add(DayOfWeek.TUESDAY);PEAK_TIME_DAYS.add(DayOfWeek.WEDNESDAY);
 		PEAK_TIME_DAYS.add(DayOfWeek.THURSDAY);PEAK_TIME_DAYS.add(DayOfWeek.FRIDAY);
+		NIGHT_TIME_HOUR = new ArrayList<TimeInterval>();
+		TimeInterval t3 = new TimeInterval(LocalTime.of(22,0,0), LocalTime.of(23,59,0));
+		TimeInterval t4 = new TimeInterval(LocalTime.of(0,1,0), LocalTime.of(6,0,0));
+		NIGHT_TIME_HOUR.add(t3);
+		NIGHT_TIME_HOUR.add(t4);
 	}
 	
 	public static TimeCategory getTimeCategoryForTravel(String date) {
@@ -61,13 +66,11 @@ public class DateTimeUtil {
 	}
 	
 	private static boolean isNightTimeTravel(LocalDateTime dateTime) {
-		for(int i=0; i<NIGHT_TIME_HOURS.length; i++) {
-			LocalTime readTime = LocalTime.of(NIGHT_TIME_HOURS[i], 0,0);
-			if(dateTime.toLocalTime().equals(readTime)) {
-				return true;
-			}
+		LocalTime time = dateTime.toLocalTime();
+		if(time == LocalTime.of(0,0,0)) {
+			return true;
 		}
-		return false;
+		return compareTime(dateTime, NIGHT_TIME_HOUR);
 	}
 
 	private static boolean isPeakTimeTravel(LocalDateTime dateTime) {
@@ -87,7 +90,9 @@ public class DateTimeUtil {
 	private static boolean compareTime(LocalDateTime dateTime, ArrayList<TimeInterval> timeHours) {
 		for(TimeInterval timeTravel: timeHours) {
 			LocalTime time = dateTime.toLocalTime();
-			Boolean isTargetAfterStartAndBeforeStop = ( time.isAfter( timeTravel.start ) && time.isBefore( timeTravel.stop ) ) ;
+			Boolean isAfter = time.isAfter(timeTravel.start) ;
+			Boolean isBefore = time.isBefore(timeTravel.stop) ;
+			Boolean isTargetAfterStartAndBeforeStop = (isAfter && isBefore) ;
 			if(isTargetAfterStartAndBeforeStop) {
 				return true;
 			}

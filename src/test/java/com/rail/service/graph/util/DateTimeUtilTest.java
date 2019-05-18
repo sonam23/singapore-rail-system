@@ -34,6 +34,11 @@ public class DateTimeUtilTest {
 		//Making it nonPeak hours by changing the DAY
 		LocalDateTime newDate4 = newDate3.plusDays(1);
 		assertEquals("Expected NON_PEAK_HOURS", TimeCategory.NON_PEAK_HOURS, DateTimeUtil.getTimeCategoryForTravel(newDate4.toString()));
+		
+		//Making it NightHours
+		LocalDateTime newDate5 = newDate4.plusMinutes(930);
+		assertEquals("Expected NIGHT_HOURS", TimeCategory.NIGHT_HOURS, DateTimeUtil.getTimeCategoryForTravel(newDate5.toString()));
+
 
 	}
 

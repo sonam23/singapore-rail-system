@@ -1,5 +1,7 @@
 package com.rail.facade;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 import org.apache.commons.lang3.StringUtils;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.rail.entity.RouteRequest;
 import com.rail.entity.RouteResponse;
 import com.rail.service.graph.GraphService;
+import com.rail.service.graph.util.DateTimeUtil;
 
 import lombok.Setter;
 
@@ -74,6 +77,14 @@ public class DefaultRailSystemFacade implements RailSystemFacade{
 		if(StringUtils.equals(source, destination)) {
 			throw new IllegalArgumentException("Source and destination cannot be same");
 		}
+		if(StringUtils.isNoneBlank(routeRequest.getTime())) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DateTimeUtil.DATE_FORMAT);
+			try {
+				LocalDateTime.parse(routeRequest.getTime(), formatter);
+			}catch(Exception e) {
+				throw new IllegalArgumentException("Unable to parse time "+routeRequest.getTime()+" required in format="+DateTimeUtil.DATE_FORMAT);
+			}
+		}
 	}
 
 	/**
@@ -81,7 +92,8 @@ public class DefaultRailSystemFacade implements RailSystemFacade{
 	 */
 	@Override
 	public RouteResponse findRouteTime(RouteRequest routeRequest) {
-		throw new InternalError("Work under progress");
+		validateInput(routeRequest);
+		return graphService.findRouteTime(routeRequest);
 	}
 
 }

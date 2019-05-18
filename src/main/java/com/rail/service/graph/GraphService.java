@@ -20,5 +20,13 @@ public interface GraphService {
 	 * @return
 	 */
 	public RouteResponse findRoute(RouteRequest routeRequest);
+	
+	/**
+	 * Finds the shortest route between the two stations provided based on any algorithm.
+	 * This considers time chart for PEAK, NON_PEAK and NIGHT hours 
+	 * @param routeRequest
+	 * @return
+	 */
+	public RouteResponse findRouteTime(RouteRequest routeRequest);
 
 }

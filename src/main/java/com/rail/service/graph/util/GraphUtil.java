@@ -3,8 +3,10 @@ package com.rail.service.graph.util;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.springframework.stereotype.Component;
 
@@ -73,6 +75,8 @@ public class GraphUtil {
 	 *   2. List of the stations
 	 *   3. Description of the routes, which also provides changing line details
 	 * @param path
+	 * @param timeCategory 
+	 * @param time 
 	 * @return RouteResponse
 	 */
 	public RouteResponse constructResponse(GraphPath<Station, StationEdge> path) {
@@ -80,6 +84,7 @@ public class GraphUtil {
 		
 		List<Station> stationList = path.getVertexList();
 		ArrayList<String> routeStations = new ArrayList<>();
+		int numberOfStationChanged = 0;
 		
 		Station prevStation = stationList.get(0);
 		String currentStationCode = getCurrentStatusCode(prevStation, "");
@@ -96,7 +101,8 @@ public class GraphUtil {
 				});
 				String newStationLine =  getCurrentLineFromCode(stationListForJunction.get(0));
 				response.addLineChange(currentStationLine, newStationLine);
-				currentStationLine = newStationLine;		
+				currentStationLine = newStationLine;	
+				numberOfStationChanged++;
 			}else {
 				routeStations.add(currentStationCode);
 				currentStationLine = getCurrentLineFromCode(currentStationCode);
@@ -109,6 +115,7 @@ public class GraphUtil {
 		response.setDistance(stationList.size());
 		response.setStationList(stationList);
 		response.setRouteStations(routeStations);
+		response.setNumberOfStationChanged(numberOfStationChanged);
 		return response;
 		
 	}
@@ -169,5 +176,94 @@ public class GraphUtil {
 	public String getCurrentLineFromCode(String code) {
 		String[] part = code.split("(?<=\\D)(?=\\d)");
 		return part[0];
+	}
+	
+	/**
+	 * Peak hours (6am-9am and 6pm-9pm on Mon-Fri)
+		NS and NE lines take 12 minutes per station
+		All other train lines take 10 minutes
+		Every train line change adds 15 minutes of waiting time to the journey
+	 * @param stationEdgeHashMap
+	 * @return
+	 */
+	public  Map<StationEdge, Double> getPeakHourTravelMap(HashMap<String, StationEdge> stationEdgeHashMap) {
+		Map<StationEdge, Double> hashMap = new HashMap<StationEdge, Double>();
+		stationEdgeHashMap.forEach((line, edge) ->{
+			if(line.equals("NS") || line.equals("NS")) {
+				hashMap.put(edge, (double) 12);
+			}else {
+				hashMap.put(edge, (double) 10);
+			}
+		});
+		return hashMap;
+	}
+
+	/**
+	 * Non-Peak hours (all other times)
+		DT and TE lines take 8 minutes per stop
+		All trains take 10 minutes per stop
+		Every train line change adds 10 minutes of waiting time to the journey
+	 * @param stationEdgeHashMap
+	 * @return
+	 */
+	public  Map<StationEdge, Double> getNonPeakHourTravelMap(HashMap<String, StationEdge> stationEdgeHashMap) {
+		Map<StationEdge, Double> hashMap = new HashMap<StationEdge, Double>();
+		stationEdgeHashMap.forEach((line, edge) ->{
+			if(line.equals("DT") || line.equals("TE")) {
+				hashMap.put(edge, (double) 8);
+			}else {
+				hashMap.put(edge, (double) 10);
+			}
+		});
+		return hashMap;
+	}
+	
+	/**
+	 * Night hours (10pm-6am on Mon-Sun)
+		DT, CG and CE lines do not operate
+		TE line takes 8 minutes per stop
+		All trains take 10 minutes per stop
+		Every train line change adds 10 minutes of waiting time to the journey
+	 * @param stationEdgeHashMap
+	 * @return
+	 */
+	public  Map<StationEdge, Double> getNightHourTravelMap(HashMap<String, StationEdge> stationEdgeHashMap) {
+		Map<StationEdge, Double> hashMap = new HashMap<StationEdge, Double>();
+		stationEdgeHashMap.forEach((line, edge) ->{
+			//The lines DT, CG and CE  are removed directly from graph
+			if(line.equals("TE")){
+				hashMap.put(edge, (double) 8);
+			}else {
+				hashMap.put(edge, (double) 10);
+			}
+		});
+		return hashMap;
+	}
+	
+	/**
+	 * Scope of improvement to add the station changing time while calculating the shortest path
+	 * @param path
+	 * @param time
+	 * @param timeCategory
+	 * @return
+	 */
+	public RouteResponse constructResponse(GraphPath<Station, StationEdge> path, Double time, TimeCategory timeCategory) {
+		RouteResponse response = constructResponse(path);
+		int numberOfStationChanged = response.getNumberOfStationChanged();
+		if(TimeCategory.PEAK_HOURS.equals(timeCategory)) {
+			response.setTime(time + 15 * numberOfStationChanged);
+		}else {
+			response.setTime(time + 10 * numberOfStationChanged);
+		}
+		return response;
+	}
+
+	public Graph<Station, StationEdge> removeEdgesNotOperational(Graph<Station, StationEdge> weightedGraph, HashMap<String, StationEdge> stationEdgeHashMap) {
+		stationEdgeHashMap.forEach((line, edge) ->{
+			if(line.equals("DT") || line.equals("CG") || line.equals("CE")) {
+				weightedGraph.removeEdge(edge);
+			}
+		});
+		return null;
 	}
 }
