@@ -10,6 +10,10 @@ import java.util.stream.Stream;
 
 import org.springframework.stereotype.Component;
 
+/**
+ * Util and helper class for the facade implementation.
+ * @author sagarwal
+ */
 @Component("railSystemFacadeUtil")
 public class RailSystemFacadeUtil {
 	

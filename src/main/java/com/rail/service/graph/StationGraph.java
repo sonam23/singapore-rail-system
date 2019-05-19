@@ -25,6 +25,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Primary class for all the graph related operations.
+ * Is responsible for the setup and construction of the graph based on the CSV file input.
+ * Also, uses Shortest path algorithm to find the best route between stations.
+ * @author sagarwal
+ */
 @Component
 public class StationGraph {
 	
@@ -128,6 +134,7 @@ public class StationGraph {
 	
 	/**
 	 * Finds the shortest path based on DijkstraShortestPath algorithm
+	 * This ensures that we have weighted graphs based on PEAK, NON_pEAK and NIGHT Hours
 	 * @param routeRequest
 	 */
 	public RouteResponse findShortestPathTime(RouteRequest routeRequest) {

@@ -15,7 +15,7 @@ import lombok.Setter;
 
 /**
  * This is the default implementation of the GraphService Based on JGraohT
- * @author sagarwal3ss
+ * @author sagarwal
  */
 @Component
 public class DefaultGraphService implements GraphService{

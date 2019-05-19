@@ -8,15 +8,25 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.rail.entity.RouteResponse;
 import com.rail.entity.graph.Station;
 import com.rail.entity.graph.StationEdge;
 import com.rail.service.graph.StationGraph.LineToStationEdge;
+import com.rail.service.graph.util.TravelTimeConfig.NightHour;
+import com.rail.service.graph.util.TravelTimeConfig.NonPeakHour;
+import com.rail.service.graph.util.TravelTimeConfig.PeakHour;
 
+/**
+ * Util class to construct the response of the graph service 	@return {@link TimeCategory}
+ * @author sagarwal
+ */
 @Component
 public class GraphUtil {
+	
+	@Autowired TravelTimeConfig travelConfig;
 	
 	/**
 	 * This will create a unique set of Stations after reading the file.
@@ -188,12 +198,14 @@ public class GraphUtil {
 	 * @return
 	 */
 	public  Map<StationEdge, Double> getPeakHourTravelMap(ArrayList<LineToStationEdge> lineToStationEdgeList) {
+		PeakHour peakHour = travelConfig.getPeakhour();
+		Map<String, Double> others = peakHour.getOthers();
 		Map<StationEdge, Double> hashMap = new HashMap<StationEdge, Double>();
-		lineToStationEdgeList.forEach(lineEdge ->{
-			if(lineEdge.getLine().equals("NS") || lineEdge.getLine().equals("NS")) {
-				hashMap.put(lineEdge.getEdge(), 12.0);
+		lineToStationEdgeList.forEach(lineEdge ->{	
+			if(others.containsKey(lineEdge.getLine())){
+				hashMap.put(lineEdge.getEdge(), others.get(lineEdge.getLine()));
 			}else {
-				hashMap.put(lineEdge.getEdge(), 10.0);
+				hashMap.put(lineEdge.getEdge(), peakHour.getDefaultTime());
 			}
 		});
 		return hashMap;
@@ -208,12 +220,14 @@ public class GraphUtil {
 	 * @return
 	 */
 	public  Map<StationEdge, Double> getNonPeakHourTravelMap(ArrayList<LineToStationEdge> lineToStationEdgeList) {
+		NonPeakHour nonpeakHour = travelConfig.getNonpeakhour();
+		Map<String, Double> others = nonpeakHour.getOthers();
 		Map<StationEdge, Double> hashMap = new HashMap<StationEdge, Double>();
 		lineToStationEdgeList.forEach(lineEdge ->{
-			if(lineEdge.getLine().equals("DT") || lineEdge.getLine().equals("TE")) {
-				hashMap.put(lineEdge.getEdge(), 8.0);
+			if(others.containsKey(lineEdge.getLine())){
+				hashMap.put(lineEdge.getEdge(), others.get(lineEdge.getLine()));
 			}else {
-				hashMap.put(lineEdge.getEdge(), 10.0);
+				hashMap.put(lineEdge.getEdge(), nonpeakHour.getDefaultTime());
 			}
 		});
 		return hashMap;
@@ -229,13 +243,15 @@ public class GraphUtil {
 	 * @return
 	 */
 	public  Map<StationEdge, Double> getNightHourTravelMap(ArrayList<LineToStationEdge> lineToStationEdgeList) {
+		NightHour nightHour = travelConfig.getNighthour();
+		Map<String, Double> others = nightHour.getOthers();
 		Map<StationEdge, Double> hashMap = new HashMap<StationEdge, Double>();
 		lineToStationEdgeList.forEach(lineEdge ->{
 			//The lines DT, CG and CE  are removed directly from graph
-			if(lineEdge.getLine().equals("TE")){
-				hashMap.put(lineEdge.getEdge(), 8.0);
+			if(others.containsKey(lineEdge.getLine())){
+				hashMap.put(lineEdge.getEdge(), others.get(lineEdge.getLine()));
 			}else {
-				hashMap.put(lineEdge.getEdge(), 10.0);
+				hashMap.put(lineEdge.getEdge(), nightHour.getDefaultTime());
 			}
 		});
 		return hashMap;
@@ -256,15 +272,24 @@ public class GraphUtil {
 		}else {
 			response.setTime(time + 10 * numberOfStationChanged);
 		}
+		response.setTimeCategory(timeCategory);
 		return response;
 	}
 
+	/**
+	 * For night hours we remove the lines that are not operational
+	 * @param weightedGraph
+	 * @param lineToStationEdgeList
+	 * @return
+	 */
 	public Graph<Station, StationEdge> removeEdgesNotOperational(Graph<Station, StationEdge> weightedGraph, ArrayList<LineToStationEdge> lineToStationEdgeList) {
+		NightHour nightHour = travelConfig.getNighthour();
+		List<String> closedLines = nightHour.getClosed();
 		lineToStationEdgeList.forEach(lineEdge ->{
-			if(lineEdge.getLine().equals("DT") || lineEdge.getLine().equals("CG") || lineEdge.getLine().equals("CE")) {
+			if(closedLines.contains(lineEdge.getLine())){
 				weightedGraph.removeEdge(lineEdge.getEdge());
 			}
 		});
-		return null;
+		return weightedGraph;
 	}
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.rail.entity.graph.Station;
+import com.rail.service.graph.util.TimeCategory;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,6 +22,7 @@ public class RouteResponse {
 	private ArrayList<EdgeStationLinks> stationsLinks;
 	@Getter @Setter private Double time;
 	@Getter @Setter private int numberOfStationChanged;
+	@Getter @Setter private TimeCategory timeCategory;
 	
 	public RouteResponse(){
 		routeDescription = new ArrayList<String>();

@@ -1,0 +1,20 @@
+traveltime: 
+  peakhour: 
+    defaultTime: 10.0
+    others: 
+      NS: 12.0
+      NE: 12.0
+  nonpeakhour: 
+    defaultTime: 10.0
+    others: 
+      DT: 8.0
+      DE: 8.0
+  nighthour: 
+    defaultTime: 10.0
+    others: 
+      TE: 8.0
+    closed:  
+      - DT
+      - CG
+      - CE
+ 

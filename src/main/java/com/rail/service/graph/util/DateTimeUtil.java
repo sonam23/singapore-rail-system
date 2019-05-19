@@ -10,6 +10,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Util class for finding out PEAK, NON_PEAK and NIGHT HOURS.
+ * Peak hours (6am-9am and 6pm-9pm on Mon-Fri)
+ * Night hours (10pm-6am on Mon-Sun)
+ * Non-Peak hours (all other times)
+ * @author sagarwal
+ */
 public class DateTimeUtil {
 	
 	@AllArgsConstructor
@@ -27,6 +34,9 @@ public class DateTimeUtil {
 	//Night hours (10pm-6am on Mon-Sun)
 	static ArrayList<TimeInterval> NIGHT_TIME_HOUR;
 	
+	/**
+	 * Initializing the list of time intervals of PEAK, NON_PEAK, NIGHT hours as per the requirement
+	 */
 	static {
 		PEAK_TIME_HOURS = new ArrayList<TimeInterval>();
 		TimeInterval t1 = new TimeInterval(LocalTime.of(6,0,0), LocalTime.of(9,0,0));
@@ -43,6 +53,11 @@ public class DateTimeUtil {
 		NIGHT_TIME_HOUR.add(t4);
 	}
 	
+	/**
+	 * Responsible for returning the TimeCategory based on the given date in the format - yyyy-MM-dd'T'HH:mm
+	 * @param date
+	 * @return {@link TimeCategory}
+	 */
 	public static TimeCategory getTimeCategoryForTravel(String date) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
 		LocalDateTime parsedDate = LocalDateTime.parse(date, formatter);
@@ -65,6 +80,12 @@ public class DateTimeUtil {
 		return timeCategory;
 	}
 	
+	/**
+	 * Scope of improvement, 0.0.0 is a bit ambiguious in java.date
+	 * Use other date libraries, we can avoid this manual return.
+	 * @param dateTime
+	 * @return
+	 */
 	private static boolean isNightTimeTravel(LocalDateTime dateTime) {
 		LocalTime time = dateTime.toLocalTime();
 		if(time == LocalTime.of(0,0,0)) {
@@ -73,6 +94,11 @@ public class DateTimeUtil {
 		return compareTime(dateTime, NIGHT_TIME_HOUR);
 	}
 
+	/**
+	 * Peak_time based on requirement
+	 * @param dateTime
+	 * @return
+	 */
 	private static boolean isPeakTimeTravel(LocalDateTime dateTime) {
 		boolean isPeakDayTravel = false;
 		for(DayOfWeek day: PEAK_TIME_DAYS) {
